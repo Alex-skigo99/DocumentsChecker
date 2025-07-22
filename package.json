@@ -1,0 +1,21 @@
+{
+  "name": "documents-checker",
+  "version": "1.0.0",
+  "description": "A Node.js application for checking documents",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "documents",
+    "checker"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mammoth": "^1.9.1",
+    "openai": "^5.8.2",
+    "pdf-parse": "^1.1.1"
+  }
+}

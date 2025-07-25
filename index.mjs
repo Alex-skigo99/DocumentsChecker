@@ -14,6 +14,11 @@ const handler = async (event) => {
 
         const { files, business_name, address } = body;
 
+        // Debug logging
+        console.log('Received files:', files);
+        console.log('Files type:', typeof files);
+        console.log('Files is array:', Array.isArray(files));
+
         if (!files || !Array.isArray(files) || files.length === 0) {
             return {
                 statusCode: 400,
@@ -37,8 +42,10 @@ const handler = async (event) => {
                 })
             };
         }
+                
+        const filesArray = Array.isArray(files) ? files : [files];
         
-        const fileProcessingPromises = files.map(async (file) => {
+        const fileProcessingPromises = filesArray.map(async (file) => {
             try {
                 if (!file.key || !file.fileName) {
                     console.error('Invalid file structure:', file);
@@ -91,7 +98,7 @@ const handler = async (event) => {
             does_business_name_match: overallBusinessMatch,
             does_address_match: overallAddressMatch,
             file_results: fileResults,
-            processed_files_count: files.length
+            processed_files_count: filesArray.length
         };
 
         console.log('Response:', JSON.stringify(response, null, 2));

@@ -1,5 +1,5 @@
 const { checkDocument } = require('./utils/checkDocument.js');
-const { downloadFileFromLocal } = require('./utils/localFileUtils.js');
+const { downloadFileFromLocal } = require('./localFileUtils.js');
 
 const localHandler = async (event) => {
     console.log('Received event:', JSON.stringify(event, null, 2));

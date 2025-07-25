@@ -37,20 +37,17 @@ const handler = async (event) => {
                 })
             };
         }
-
-        const results = [];
         
-        for (const file of files) {
+        const fileProcessingPromises = files.map(async (file) => {
             try {
                 if (!file.key || !file.fileName) {
                     console.error('Invalid file structure:', file);
-                    results.push({
+                    return {
                         fileName: file.fileName || 'unknown',
                         does_business_name_match: null,
                         does_address_match: null,
                         error: 'Invalid file structure - missing key or fileName'
-                    });
-                    continue;
+                    };
                 }
 
                 console.log(`Downloading file from S3: ${file.key}, fileName: ${file.fileName}, contentType: ${file.contentType}`);
@@ -66,34 +63,34 @@ const handler = async (event) => {
                 
                 const result = await checkDocument(documentFile, business_name, address);
                 
-                results.push({
+                return {
                     fileName: file.fileName,
                     s3Key: file.key,
                     does_business_name_match: result.does_business_name_match,
                     does_address_match: result.does_address_match
-                });
+                };
                 
             } catch (fileError) {
                 console.error(`Error processing file ${file.fileName || 'unknown'}:`, fileError);
-                results.push({
+                return {
                     fileName: file.fileName || 'unknown',
                     s3Key: file.key,
                     does_business_name_match: null,
                     does_address_match: null,
                     error: fileError.message
-                });
+                };
             }
-        }
+        });
 
-        // Calculate overall results
-        // If any file has a match, consider it a match
-        const overallBusinessMatch = results.some(r => r.does_business_name_match === true);
-        const overallAddressMatch = results.some(r => r.does_address_match === true);
+        const fileResults = await Promise.all(fileProcessingPromises);
+
+        const overallBusinessMatch = fileResults.some(r => r.does_business_name_match === true);
+        const overallAddressMatch = fileResults.some(r => r.does_address_match === true);
 
         const response = {
             does_business_name_match: overallBusinessMatch,
             does_address_match: overallAddressMatch,
-            file_results: results,
+            file_results: fileResults,
             processed_files_count: files.length
         };
 

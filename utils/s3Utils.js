@@ -1,9 +1,9 @@
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 
 const s3Client = new S3Client({ region: "us-east-2" });
 const s3BucketName = "gmb-location-document";
 
-export async function downloadFileFromS3(s3Key) {
+async function downloadFileFromS3(s3Key) {
     try {
         const command = new GetObjectCommand({
             Bucket: s3BucketName,
@@ -22,3 +22,7 @@ export async function downloadFileFromS3(s3Key) {
         throw new Error(`Failed to download file from S3: ${error.message}`);
     }
 }
+
+module.exports = {
+    downloadFileFromS3
+};

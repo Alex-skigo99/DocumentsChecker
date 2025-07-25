@@ -1,4 +1,4 @@
-import { handler } from './index.mjs';
+const { handler } = require('./index.js');
 
 // Example test event that matches the new format with S3 keys
 const testEvent = {

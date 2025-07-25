@@ -1,0 +1,12 @@
+Test Business LLC
+Business License
+
+This document certifies that Test Business LLC is authorized to conduct business.
+
+Business Address: 123 Main Street, Test City, NY 12345
+
+License Number: BL-2024-001
+Issue Date: January 1, 2024
+Expiration Date: December 31, 2024
+
+This is a sample document for testing purposes.

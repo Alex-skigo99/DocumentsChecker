@@ -1,8 +1,8 @@
-import pdf from "pdf-parse";
-import mammoth from "mammoth";
-import { generateResponse, generateResponseVision } from "./utils.js";
+const pdf = require("pdf-parse");
+const mammoth = require("mammoth");
+const { generateResponse, generateResponseVision } = require("./utils.js");
 
-export async function checkDocument(documentFile, businessName, address) {
+async function checkDocument(documentFile, businessName, address) {
     const basePrompt = `
     Business name to verify: ${businessName}
     Address to verify: ${address}
@@ -109,10 +109,18 @@ export async function checkDocument(documentFile, businessName, address) {
         }
 
         let parsedResponse;
+        let cleanedResponse;
         try {
-            parsedResponse = JSON.parse(responseContent.trim());
+            cleanedResponse = responseContent.trim();
+            
+            cleanedResponse = cleanedResponse.replace(/^```(?:json)?\s*\n?/i, '');
+            cleanedResponse = cleanedResponse.replace(/\n?\s*```$/i, '');
+            cleanedResponse = cleanedResponse.trim();
+            
+            parsedResponse = JSON.parse(cleanedResponse);
         } catch (parseError) {
             console.log("Failed to parse AI response as JSON:", responseContent);
+            console.log("Cleaned response:", cleanedResponse);
             throw new Error("Invalid JSON response from AI service");
         }
 
@@ -132,4 +140,8 @@ export async function checkDocument(documentFile, businessName, address) {
             does_address_match: null
         };
     }
+};
+
+module.exports = {
+    checkDocument
 };

@@ -1,7 +1,7 @@
 const { checkDocument } = require('./utils/checkDocument.js');
-const { downloadFileFromS3 } = require('./utils/s3Utils.js');
+const { downloadFileFromLocal } = require('./utils/localFileUtils.js');
 
-const handler = async (event) => {
+const localHandler = async (event) => {
     console.log('Received event:', JSON.stringify(event, null, 2));
     
     try {
@@ -42,33 +42,33 @@ const handler = async (event) => {
         
         for (const file of files) {
             try {
-                if (!file.key || !file.fileName) {
+                if (!file.filePath || !file.fileName) {
                     console.error('Invalid file structure:', file);
                     results.push({
                         fileName: file.fileName || 'unknown',
                         does_business_name_match: null,
                         does_address_match: null,
-                        error: 'Invalid file structure - missing key or fileName'
+                        error: 'Invalid file structure - missing filePath or fileName'
                     });
                     continue;
                 }
 
-                console.log(`Downloading file from S3: ${file.key}, fileName: ${file.fileName}, contentType: ${file.contentType}`);
+                console.log(`Reading local file: ${file.filePath}, fileName: ${file.fileName}, contentType: ${file.contentType}`);
                 
-                const fileContent = await downloadFileFromS3(file.key);
+                const fileContent = await downloadFileFromLocal(file.filePath);
                 
                 const documentFile = {
                     content: fileContent,
                     contentType: file.contentType || 'application/octet-stream'
                 };
 
-                console.log(`Processing file: ${file.fileName}, type: ${documentFile.contentType}, size: ${file.size || fileContent.length}`);
+                console.log(`Processing file: ${file.fileName}, type: ${documentFile.contentType}, size: ${fileContent.length}`);
                 
                 const result = await checkDocument(documentFile, business_name, address);
                 
                 results.push({
                     fileName: file.fileName,
-                    s3Key: file.key,
+                    filePath: file.filePath,
                     does_business_name_match: result.does_business_name_match,
                     does_address_match: result.does_address_match
                 });
@@ -77,7 +77,7 @@ const handler = async (event) => {
                 console.error(`Error processing file ${file.fileName || 'unknown'}:`, fileError);
                 results.push({
                     fileName: file.fileName || 'unknown',
-                    s3Key: file.key,
+                    filePath: file.filePath,
                     does_business_name_match: null,
                     does_address_match: null,
                     error: fileError.message
@@ -108,7 +108,7 @@ const handler = async (event) => {
         };
 
     } catch (error) {
-        console.error('Lambda handler error:', error);
+        console.error('Local handler error:', error);
         
         return {
             statusCode: 500,
@@ -126,5 +126,5 @@ const handler = async (event) => {
 };
 
 module.exports = {
-    handler
+    localHandler
 };
